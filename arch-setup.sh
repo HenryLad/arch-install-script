@@ -52,10 +52,10 @@ disk_size=$(lsblk -bno SIZE /dev/$disk | grep -m 1 -E "^.*$")
 
 
 while true; do
-    printf "How much GB for Linux Swap (Min: 4G): "
+    printf "How much GB for Linux Swap (Min: 1G): "
     read swap
     swap=${swap:-0}
-    if ! [[ "$swap" =~ ^[0-9]+$ ]] || [ "$swap" -lt 4 ]; then
+    if ! [[ "$swap" =~ ^[0-9]+$ ]] || [ "$swap" -lt 1 ]; then
         echo "Invalid input. Swap must be a number and at least 4GB."
         continue
     fi
@@ -68,10 +68,10 @@ while true; do
         continue
     fi
 
-    printf "How much GB for Linux Root (Min: 20GB): "
+    printf "How much GB for Linux Root (Min: 5GB): "
     read root
     root=${root:-0}
-    if ! [[ "$root" =~ ^[0-9]+$ ]] || [ "$root" -lt 20 ]; then
+    if ! [[ "$root" =~ ^[0-9]+$ ]] || [ "$root" -lt 5 ]; then
         echo "Invalid input. Root must be a number and at least 20GB."
         continue
     fi
