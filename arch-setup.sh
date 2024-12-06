@@ -50,6 +50,7 @@ done
 echo "Info Starting partitioning of $disk"
 disk_size=$(lsblk -bno SIZE /dev/$disk | grep -m 1 -E "^.*$")
 
+
 while true; do
     printf "How much GB for Linux Swap (Min: 4G): "
     read swap
@@ -83,4 +84,25 @@ while true; do
 
     break
 done
-sudo fdisk /dev/$disk
+{
+  echo "g"                        # Create a new DOS partition table
+  echo "n"                        # Add a new partition (Boot)
+  echo "p"                        # Primary partition
+  echo "1"                        # Partition number 1
+  echo                           # Default - start at beginning of disk
+  echo "+$boot"              # Boot partition size
+  echo "n"                        # Add a new partition (Swap)
+  echo "p"                        # Primary partition
+  echo "2"                        # Partition number 2
+  echo                           # Default - start immediately after boot
+  echo "+$swap"              # Swap partition size
+  echo "n"                        # Add a new partition (Root)
+  echo "p"                        # Primary partition
+  echo "3"                        # Partition number 3
+  echo                           # Default - start immediately after swap
+  echo "$root"               # Root partition size
+  echo "t"                        # Change partition type
+  echo "2"                        # Select partition 2 (swap)
+  echo "82"                       # Set type to Linux swap
+  echo "w"                        # Write the changes and exit
+} | fdisk "$disk"
