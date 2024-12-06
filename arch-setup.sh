@@ -15,7 +15,8 @@ else
     echo "Failed to load keylayout."
 fi
 if [ "$(pwd)" != "/root" ]; then
-    cd '/root'
+    cd 
+    echo "Changed directory to /root"
 fi
 printf"Do you want to update the time : (Y/N)"
 read time
@@ -47,4 +48,3 @@ read boot
 printf "How much GB for Linux Root(Min: 20GB) : "
 read root
 sudo fdisk /dev/$disk 
-g 
