@@ -97,6 +97,19 @@ while true; do
 
     break
 done
+echo -e "\e[31mRemoving all partitions on $disk will remove all data on the disk and can cause serious data loss.\e[0m"
+echo "Do you want to remove all the parations parts on $disk? Y/N"
+read remove
+remove=$(echo "$remove" | tr '[:upper:]' '[:lower:')
+if [ "$remove" = "y" ]; then
+    echo "Removing all partitions on $disk"
+    wipefs -a "/dev/$disk"
+    if [ $? -eq 0 ]; then
+        echo "All partitions removed successfully."
+    else
+        echo "Failed to remove all partitions."
+    fi
+fi
 {
     echo "g"       # Create a new DOS partition table
     echo "n"       # Add a new partition (Boot)
@@ -115,6 +128,6 @@ done
     echo "+$root"G  # Root partition size
     echo "t"       # Change partition type
     echo "2"       # Select partition 2 (swap)
-    echo "82"      # Set type to Linux swap
+    echo "19"      # Set type to Linux swap
     echo "w"       # Write the changes and exit
 } | fdisk "/dev/$disk"
