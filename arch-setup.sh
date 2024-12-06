@@ -1,26 +1,26 @@
 #!/bin/sh
 # This script is for setting up Arch Linux
-echo "Which keylayout do you want (A to print all options)":
+echo "Which keylayout do you want? (Type 'A' to print all options):"
 read keylayout
-if [ "$keylayout" = "A" ] || [ "$keylayout" = "a" ]; then
+
+if [[ "$keylayout" == "A" || "$keylayout" == "a" ]]; then
     localectl list-keymaps
+    echo "Which keylayout do you want: "
+    read keylayout
 fi
-echo "Which keylayout do you want: "
-read keylayout
+
 if [ -z "$keylayout" ]; then
-    echo "Keylayout not provided ! Continuing with the currently selectet keylayout."
-    current_keylayout=$(localectl status | grep "VC Keymap" | awk '{print $3}')
+    echo "Keylayout not provided! Continuing with the currently selected keylayout."
+    current_keylayout=$(localectl status | awk -F: '/VC Keymap/{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
     echo "Current keylayout is: $current_keylayout"
-fi
-loadkeys "$keylayout" | grep -q "loadkeys : Unable to open"
-if [ $? -eq 1 ]; then
-    echo "Failed to load keylayout ! Continuing with the currently selectet keylayout."
-    current_keylayout=$(localectl status | grep "VC Keymap" | awk '{print $3}')
-    echo "Current keylayout is: $current_keylayout"
-    exit 1
-fi
-if [ $? -eq 0 ]; then
-    echo "Keylayout loaded successfully."
+else
+    if loadkeys "$keylayout" 2>/dev/null; then
+        echo "Keylayout '$keylayout' loaded successfully."
+    else
+        echo "Failed to load keylayout '$keylayout'! Continuing with the currently selected keylayout."
+        current_keylayout=$(localectl status | awk -F: '/VC Keymap/{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
+        echo "Current keylayout is: $current_keylayout"
+    fi
 fi
 if [ "$(pwd)" != "/root" ]; then
     cd || exit
