@@ -105,4 +105,4 @@ done
   echo "2"                        # Select partition 2 (swap)
   echo "82"                       # Set type to Linux swap
   echo "w"                        # Write the changes and exit
-} | fdisk "$disk"
+} | fdisk "/dev/$disk"
