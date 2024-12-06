@@ -1,13 +1,5 @@
 #!/bin/sh
- RED='\033[0;31m'
- YELLOW='\033[1;33m'
- GREEN='\033[0;32m'
- NC='\033[0m'
- BOLD='\033[1m'
- Error="${RED}${BOLD}ERROR${NC}"
- Success="${GREEN}${BOLD}SUCCESS${NC}"
- Info="${BOLD}INFO${NC}"
- Warning="${YELLOW}${BOLD}WARNING${NC}"
+# This script is for setting up Arch Linux
 echo "Which keylayout do you want (A to print all options)": 
 read keylayout
 if [ $keylayout == "A" ]
@@ -38,7 +30,7 @@ then
 fi 
 
 echo "Starting partionioning of the disk"
-echo "$Warning: This will delete all data on the disk"
+echo "Warning: This will delete all data on the disk"
 printf "Which disk do you want to partition (A to print all options): "
 read disk
 if [ $disk == "A" ]
@@ -47,11 +39,12 @@ then
     printf "Which disk do you want to partition: "
     read disk
 fi
-echo "$Info Starting partitioning of $disk"
+echo "Info Starting partitioning of $disk"
 printf "How much GB for Linux Swap(Min: 4G) : "
 read swap
 printf "How much GB for Linux Boot(Min :  1GB) : "
 read boot
 printf "How much GB for Linux Root(Min: 20GB) : "
+read root
 sudo fdisk /dev/$disk 
 g 
