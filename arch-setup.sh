@@ -40,21 +40,27 @@ fi
 
 echo "Starting partionioning of the disk"
 echo -e "\e[31mWarning: This will delete all data on the disk\e[0m"
-
 while true; do
-    printf "Which disk do you want to partition (A to print all options): "
+    printf "Which disk do you want to partition? (Type 'A' to list all disks): "
     read -r disk
-    if [ "$disk" = "A" ] || [ "$disk" = "a" ]; then
-    lsblk | grep -E "disk|part" | grep -vE "loop|zram"
+    if [[ "$disk" == "A" || "$disk" == "a" ]]; then
+        echo "Available disks:"
+        lsblk -d -o NAME,SIZE,TYPE | grep -E "disk"
+        continue
     fi
     if [ -z "$disk" ]; then
-        echo "Disk not provided"
-    elif lsblk | grep -q "$disk"; then
+        echo "No disk provided. Please enter a disk name."
+        continue
+    fi
+    if lsblk -d -n -o NAME | grep -qw "$disk"; then
+        echo "Disk '$disk' found."
         break
     else
-        echo "Disk not found"
+        echo "Disk '$disk' not found. Please try again."
     fi
 done
+
+echo "You have selected disk: $disk"
 echo "Info Starting partitioning of $disk"
 disk_size=$(lsblk -bno SIZE /dev/$disk | grep -m 1 -E "^.*$")
 
