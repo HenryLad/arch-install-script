@@ -105,7 +105,6 @@ done
     echo "+$boot"G # Boot partition size
     echo "t"       # Change partition type
     echo "1"       # Select partition 1 (boot)
-    echo "1"       # Set type to EFI System
     echo "n"       # Add a new partition (Swap)
     echo "2"       # Partition number 2
     echo           # Default - start immediately after boot
@@ -113,7 +112,7 @@ done
     echo "n"       # Add a new partition (Root)
     echo "3"       # Partition number 3
     echo           # Default - start immediately after swap
-    echo "$root"G  # Root partition size
+    echo "+$root"G  # Root partition size
     echo "t"       # Change partition type
     echo "2"       # Select partition 2 (swap)
     echo "82"      # Set type to Linux swap
