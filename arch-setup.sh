@@ -15,10 +15,10 @@ else
     echo "Failed to load keylayout."
 fi
 if [ "$(pwd)" != "/root" ]; then
-    cd 
+    cd || exit
     echo "Changed directory to /root"
 fi
-printf"Do you want to update the time : (Y/N)"
+printf "Do you want to update the time : Y/N"
 read time
 if [ $time = "Y" ]
 then
