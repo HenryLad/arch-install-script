@@ -14,8 +14,8 @@ if [ $? -eq 0 ]; then
 else
     echo "Failed to load keylayout."
 fi
-if [ pwd != "/root" ]; then
-    cd /root    
+if [ "$(pwd)" != "/root" ]; then
+    cd '/root'
 fi
 printf"Do you want to update the time : (Y/N)"
 read time
