@@ -36,21 +36,51 @@ read disk
 if [ $disk == "A" ]; then
     lsblk | grep -E "disk|part" | grep -vE "loop|zram"
 fi
-printf "Which disk do you want to partition: "
-read disk
-if [ -z "$disk" ]; then
-    echo "Disk not provided"
-    exit 1
-fi
-if ! lsblk | grep -E "$disk"; then
-    echo "Disk not found"
-    exit 1
-fi
+while true; do
+    printf "Which disk do you want to partition: "
+    read disk
+    if [ -z "$disk" ]; then
+        echo "Disk not provided"
+    elif lsblk | grep -q "$disk"; then
+        break
+    else
+        echo "Disk not found"
+    fi
+done
 echo "Info Starting partitioning of $disk"
-printf "How much GB for Linux Swap(Min: 4G) : "
-read swap
-printf "How much GB for Linux Boot(Min :  1GB) : "
-read boot
-printf "How much GB for Linux Root(Min: 20GB) : "
-read root
+disk_size=$(lsblk -bno SIZE /dev/$disk | grep -m 1 -E "^.*$")
+
+while true; do
+    printf "How much GB for Linux Swap (Min: 4G): "
+    read swap
+    swap=${swap:-0}
+    if ! [[ "$swap" =~ ^[0-9]+$ ]] || [ "$swap" -lt 4 ]; then
+        echo "Invalid input. Swap must be a number and at least 4GB."
+        continue
+    fi
+
+    printf "How much GB for Linux Boot (Min: 1GB): "
+    read boot
+    boot=${boot:-0}
+    if ! [[ "$boot" =~ ^[0-9]+$ ]] || [ "$boot" -lt 1 ]; then
+        echo "Invalid input. Boot must be a number and at least 1GB."
+        continue
+    fi
+
+    printf "How much GB for Linux Root (Min: 20GB): "
+    read root
+    root=${root:-0}
+    if ! [[ "$root" =~ ^[0-9]+$ ]] || [ "$root" -lt 20 ]; then
+        echo "Invalid input. Root must be a number and at least 20GB."
+        continue
+    fi
+
+    total=$((swap + boot + root))
+    if [ "$total" -gt $((disk_size / 1024 / 1024 / 1024)) ]; then
+        echo "Total size exceeds disk size. Please enter valid sizes."
+        continue
+    fi
+
+    break
+done
 sudo fdisk /dev/$disk
