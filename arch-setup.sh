@@ -170,6 +170,22 @@ if [ "$line_count" != 1 ]; then
     read swap_partition
 fi
 
-echo $root_partition
-echo $boot_partition
-echo $swap_partition
+echo "Formatting boot partition"
+mkfs.fat -F 32 "$boot_partition"
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Boot partition formatted successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to format boot partition."
+fi
+mkfs.ext4 "$root_partition"
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Root partition formatted successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to format root partition."
+fi
+mkswap "$swap_partition"
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Swap partition formatted successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to format swap partition."
+fi
