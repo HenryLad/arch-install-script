@@ -139,3 +139,34 @@ fi
 
 echo "Formatting partitions"
 
+
+root_partition=''
+root_partition=$(sudo fdisk -l | grep "Linux filesystem" | awk '{print $1}')
+line_count=$(sudo fdisk -l | grep "Linux filesystem" | wc -l)
+if [ "$line_count" != 1 ]; then 
+    echo "Multiple Linux filesystem partitions found. Please select the root partition."
+    sudo fdisk -l | grep "Linux filesystem"
+    echo "Enter the root partition: "
+    read root_partition
+fi
+
+boot_partition=''
+boot_partition=$(sudo fdisk -l | grep "EFI System" | awk '{print $1}')
+line_count=$(sudo fdisk -l | grep "EFI System" | wc -l)
+if [ "$line_count" != 1 ]; then 
+    echo "Multiple EFI System partitions found. Please select the boot partition."
+    sudo fdisk -l | grep "EFI System"
+    echo "Enter the boot partition: "
+    read boot_partition
+fi
+
+swap_partition=''
+swap_partition=$(sudo fdisk -l | grep "Linux swap" | awk '{print $1}')
+line_count=$(sudo fdisk -l | grep "Linux swap" | wc -l)
+if [ "$line_count" != 1 ]; then 
+    echo "Multiple Linux swap partitions found. Please select the swap partition."
+    sudo fdisk -l | grep "Linux swap"
+    echo "Enter the swap partition: "
+    read swap_partition
+fi
+
