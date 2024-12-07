@@ -32,7 +32,7 @@ time=$(echo "$time" | tr '[:upper:]' '[:lower:]')
 if [ $time = "y" ]; then
     timedatectl set-ntp true
     if [ $? -eq 0 ]; then
-        echo "Time updated successfully."
+        echo -e "\e[1;32m[SUCCESS]\e[0m Time updated successfully."
     else
         echo "Failed to update time."
     fi
@@ -130,4 +130,12 @@ fi
     echo "2"       # Select partition 2 (swap)
     echo "19"      # Set type to Linux swap
     echo "w"       # Write the changes and exit
-} | fdisk "/dev/$disk"
+} | fdisk "/dev/$disk" > /dev/null
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Partitions created successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to create partitions."
+fi
+
+echo "Formatting partitions"
+
