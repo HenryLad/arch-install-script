@@ -170,3 +170,6 @@ if [ "$line_count" != 1 ]; then
     read swap_partition
 fi
 
+echo $root_partition
+echo $boot_partition
+echo $swap_partition
