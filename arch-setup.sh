@@ -189,3 +189,25 @@ if [ $? -eq 0 ]; then
 else
     echo -e "\e[1;31m[ERROR]\e[0m Failed to format swap partition."
 fi
+
+
+echo "Mounting partitions to /mnt"
+
+mount "$root_partition" /mnt
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Root partition mounted successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to mount root partition."
+fi
+mount --mkdir /dev/efi_system_partition /mnt/boot
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Boot partition mounted successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to mount boot partition."
+fi
+swapon /dev/swap_partition
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Swap partition mounted successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to mount swap partition."
+fi
