@@ -211,3 +211,17 @@ if [ $? -eq 0 ]; then
 else
     echo -e "\e[1;31m[ERROR]\e[0m Failed to mount swap partition."
 fi
+
+
+pacstrap -K /mnt base linux linux-firmware --noconfirm
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Base system installed successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to install base system."
+fi
+
+genfstab -U /mnt >> /mnt/etc/fstab
+
+echo "Setting up the system"
+
+arch-chroot /mnt 
