@@ -234,7 +234,7 @@ fi
 
 
 echo "Installing the base system"
-pacstrap /mnt base base-devel linux linux-firmware linux-headers nano intel-ucode reflector mtools dosfstools --nocofirm >> /dev/null
+pacstrap /mnt base base-devel linux linux-firmware linux-headers nano intel-ucode reflector mtools dosfstools --noconfirm >> /dev/null
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS Base system installed successfully."
 else
