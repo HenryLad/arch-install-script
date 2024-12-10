@@ -116,7 +116,7 @@ while true; do
 
     break
 done
-echo -e "\e[31mRemoving all partitions on $disk will remove all data on the disk and can cause serious data loss.\e[0m"
+echo -e " $WARNING \e[1mDo you want to remove all the partitions on $disk. This is not necessary if you are installing Arch Linux on a new disk.\e[0m"
 echo "Do you want to remove all the parations parts on $disk? Y/N"
 read remove
 remove=$(echo "$remove" | tr '[:upper:]' '[:lower:')
@@ -124,9 +124,9 @@ if [ "$remove" = "y" ]; then
     echo "Removing all partitions on $disk"
     wipefs -a "/dev/$disk"
     if [ $? -eq 0 ]; then
-        echo "All partitions removed successfully."
+        echo -e "$SUCESS All partitions removed successfully."
     else
-        echo "Failed to remove all partitions."
+        echo -e "$ERROR Failed to remove all partitions."
     fi
 fi
 {
@@ -232,31 +232,47 @@ else
 fi
 
 
-pacstrap -K /mnt base linux linux-firmware --noconfirm
+
+echo "Installing the base system"
+pacstrap /mnt base base-devel linux linux-firmware linux-headers nano intel-ucode reflector mtools dosfstools --nocofirm >> /dev/null
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS Base system installed successfully."
 else
     echo -e "$ERROR Failed to install base system."
 fi
-
 genfstab -U /mnt >> /mnt/etc/fstab
 
-echo "Setting up the system"
+# Setup in the arch chroot environment
+echo "Setting up the system in chroot"
 
 arch-chroot /mnt 
 
-# Setup in the arch chroot environment
 
-echo "Setting up the system in chroot"
 
+# Setting up Language
+echo "Setting up the language"
+printf "Enter your language (e.g. en_US.UTF-8, de_DE.UTF-8): "
+read language
+echo "LANG=$language" > /etc/locale.conf
+echo "$language UTF-8" >> /etc/locale.gen
+locale-gen
+if [ $? -eq 0 ]; then
+    echo -e "$SUCESS Language set successfully."
+else
+    echo -e "$ERROR Failed to set language."
+fi
+
+# Setting the hostname
 printf "Set your hostname: "
 read hostname 
 echo "$hostname" > /etc/hostname
+if [ $? -eq 0 ]; then
+    echo -e "$SUCESS Hostname set successfully."
+else
+    echo -e "$ERROR Failed to set hostname."
+fi
 
-
-> /etc/hosts
-
-
+# Setting up the hosts file
 echo "127.0.0.1   localhost" >> /etc/hosts
 echo "::1         localhost" >> /etc/hosts
 echo "127.0.1.1   $hostname.localdomain $hostname" >> /etc/hosts
@@ -265,35 +281,18 @@ if [ $? -eq 0 ]; then
 else
     echo -e "$ERROR Failed to set hostname."
 fi
-
+# Setting up the network Manager
 echo "Installing NetworkManager"
-pacman -S networkmanager --noconfirm
+pacman -S networkmanager --noconfirm >> /dev/null
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS NetworkManager installed successfully."
 else
     echo -e "$ERROR Failed to install NetworkManager."
 fi
-systemctl enable NetworkManager > /dev/null
+systemctl enable NetworkManager >> /dev/null
 if [ $? -eq 0 ]; then
-    echo -e "$SUCESS NetworkManager enabled successfully."
+    printf "%b\n" "$SUCESS NetworkManager enabled successfully."
 else
     echo -e "$ERROR Failed to enable NetworkManager."
 fi
-
-printf "Enter your root password: "
-read -s root_password
-passwd <<< "$root_password" > /dev/null
-
-echo "Creating a new user"
-printf "Enter your username: "
-read username
-useradd -m -G wheel -s /bin/bash "$username"
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS User '$username' created successfully."
-else
-    echo -e "$ERROR Failed to create user '$username'."
-fi
-printf "Enter your password: "
-read -s user_password
-passwd "$username" <<< "$user_password" > /dev/null
 
