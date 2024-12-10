@@ -20,7 +20,10 @@ Before running the script, ensure you have the following:
 
 4. Execute this command :
 
-  git clone https://github.com/HenryLad/arch-install-script.git && chmod +x arch-setup.sh && ./arch-setup.sh
+  git clone https://github.com/HenryLad/arch-install-script.git && ./arch-install-script/install.sh
 
+or download it with curl 
+
+  curl -LO https://raw.githubusercontent.com/HenryLad/arch-install-script/refs/heads/main/arch-setup.sh && chmod +x arch-setup.sh && ./arch-setup.sh
 
 
