@@ -225,3 +225,42 @@ genfstab -U /mnt >> /mnt/etc/fstab
 echo "Setting up the system"
 
 arch-chroot /mnt 
+
+# Setup in the arch chroot environment
+
+echo "Setting up the system in chroot"
+
+printf "Set your hostname: "
+read hostname 
+echo "$hostname" > /etc/hostname
+
+
+> /etc/hosts
+
+
+echo "127.0.0.1   localhost" >> /etc/hosts
+echo "::1         localhost" >> /etc/hosts
+echo "127.0.1.1   $hostname.localdomain $hostname" >> /etc/hosts
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m Hostname set successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to set hostname."
+fi
+
+echo "Installing NetworkManager"
+pacman -S networkmanager --noconfirm
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m NetworkManager installed successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to install NetworkManager."
+fi
+systemctl enable NetworkManager > /dev/null
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m NetworkManager enabled successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to enable NetworkManager."
+fi
+
+printf "Enter your root password: "
+read -s root_password
+
