@@ -263,4 +263,18 @@ fi
 
 printf "Enter your root password: "
 read -s root_password
+passwd <<< "$root_password" > /dev/null
+
+echo "Creating a new user"
+printf "Enter your username: "
+read username
+useradd -m -G wheel -s /bin/bash "$username"
+if [ $? -eq 0 ]; then
+    echo -e "\e[1;32m[SUCCESS]\e[0m User '$username' created successfully."
+else
+    echo -e "\e[1;31m[ERROR]\e[0m Failed to create user '$username'."
+fi
+printf "Enter your password: "
+read -s user_password
+passwd "$username" <<< "$user_password" > /dev/null
 
