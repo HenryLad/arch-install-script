@@ -1,5 +1,20 @@
 #!/bin/sh
 # This script is for setting up Arch Linux
+echo "############################################################"
+echo "#                                                          #"
+echo "#                Arch Linux Setup Script                   #"
+echo "#                                                          #"
+echo "# This script will guide you through the setup of Arch     #"
+echo "# Linux, including partitioning, formatting, and           #"
+echo "# installing the base system.                              #"
+echo "#                                                          #"
+echo "############################################################"
+echo ""
+
+SUCCESS="\e[1;32m[SUCCESS]\e[0m"
+ERROR="\e[1;31m[ERROR]\e[0m"
+WARNING="\e[1;33m[WARNING]\e[0m"
+
 echo "Which keylayout do you want? (Type 'A' to print all options):"
 read keylayout
 
@@ -10,36 +25,42 @@ if [[ "$keylayout" == "A" || "$keylayout" == "a" ]]; then
 fi
 
 if [ -z "$keylayout" ]; then
-    echo "Keylayout not provided! Continuing with the currently selected keylayout."
+    echo "$WARNING Keylayout not provided! Continuing with the currently selected keylayout."
     current_keylayout=$(localectl status | awk -F: '/VC Keymap/{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
     echo "Current keylayout is: $current_keylayout"
 else
     if loadkeys "$keylayout" 2>/dev/null; then
-        echo "Keylayout '$keylayout' loaded successfully."
+        echo "$SUCESS Keylayout '$keylayout' loaded successfully."
     else
-        echo "Failed to load keylayout '$keylayout'! Continuing with the currently selected keylayout."
+        echo "$WARNING Failed to load keylayout '$keylayout'! Continuing with the currently selected keylayout."
         current_keylayout=$(localectl status | awk -F: '/VC Keymap/{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
         echo "Current keylayout is: $current_keylayout"
     fi
 fi
 if [ "$(pwd)" != "/root" ]; then
     cd || exit
-    echo "Changed directory to /root"
+    echo "$SUCESS Changed directory to /root"
 fi
 printf "Do you want to update the time Y/N : "
 read time
+if [ -z "$time" ]; then
+    echo "$WARNING No input provided. Defaulting to 'N'."
+    time="n"
+
+else  
 time=$(echo "$time" | tr '[:upper:]' '[:lower:]')
+fi 
 if [ $time = "y" ]; then
     timedatectl set-ntp true
     if [ $? -eq 0 ]; then
-        echo -e "\e[1;32m[SUCCESS]\e[0m Time updated successfully."
+        echo -e "$SUCESS Time updated successfully."
     else
-        echo "Failed to update time."
+        echo "$ERROR Failed to update time."
     fi
 fi
 
 echo "Starting partionioning of the disk"
-echo -e "\e[31mWarning: This will delete all data on the disk\e[0m"
+echo -e "$WARNING This will delete all data on the disk\e[0m"
 while true; do
     printf "Which disk do you want to partition? (Type 'A' to list all disks): "
     read -r disk
@@ -53,7 +74,6 @@ while true; do
         continue
     fi
     if lsblk -d -n -o NAME | grep -qw "$disk"; then
-        echo "Disk '$disk' found."
         break
     else
         echo "Disk '$disk' not found. Please try again."
@@ -61,14 +81,13 @@ while true; do
 done
 
 echo "You have selected disk: $disk"
-echo "Info Starting partitioning of $disk"
 disk_size=$(lsblk -bno SIZE /dev/$disk | grep -m 1 -E "^.*$")
 
 while true; do
-    printf "How much GB for Linux Swap (Min: 1G): "
+    printf "How much GB for Linux Swap (Min: 4G): "
     read swap
     swap=${swap:-0}
-    if ! [[ "$swap" =~ ^[0-9]+$ ]] || [ "$swap" -lt 1 ]; then
+    if ! [[ "$swap" =~ ^[0-9]+$ ]] || [ "$swap" -lt 4 ]; then
         echo "Invalid input. Swap must be a number and at least 4GB."
         continue
     fi
@@ -81,10 +100,10 @@ while true; do
         continue
     fi
 
-    printf "How much GB for Linux Root (Min: 5GB): "
+    printf "How much GB for Linux Root (Min: 20GB): "
     read root
     root=${root:-0}
-    if ! [[ "$root" =~ ^[0-9]+$ ]] || [ "$root" -lt 5 ]; then
+    if ! [[ "$root" =~ ^[0-9]+$ ]] || [ "$root" -lt 10 ]; then
         echo "Invalid input. Root must be a number and at least 20GB."
         continue
     fi
@@ -132,9 +151,9 @@ fi
     echo "w"       # Write the changes and exit
 } | fdisk "/dev/$disk" > /dev/null
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Partitions created successfully."
+    echo -e "$SUCESS Partitions created successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to create partitions."
+    echo -e "$ERROR Failed to create partitions."
 fi
 
 echo "Formatting partitions"
@@ -173,21 +192,21 @@ fi
 echo "Formatting boot partition"
 mkfs.fat -F 32 "$boot_partition"
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Boot partition formatted successfully."
+    echo -e "$SUCESS Boot partition formatted successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to format boot partition."
+    echo -e "$ERROR Failed to format boot partition."
 fi
 mkfs.ext4 "$root_partition"
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Root partition formatted successfully."
+    echo -e "$SUCESS Root partition formatted successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to format root partition."
+    echo -e "$ERROR Failed to format root partition."
 fi
 mkswap "$swap_partition"
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Swap partition formatted successfully."
+    echo -e "$SUCESS Swap partition formatted successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to format swap partition."
+    echo -e "$ERROR Failed to format swap partition."
 fi
 
 
@@ -195,29 +214,29 @@ echo "Mounting partitions to /mnt"
 
 mount "$root_partition" /mnt
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Root partition mounted successfully."
+    echo -e "$SUCESS Root partition mounted successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to mount root partition."
+    echo -e "$ERROR Failed to mount root partition."
 fi
 mount --mkdir "$boot_partition" /mnt/boot
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Boot partition mounted successfully."
+    echo -e "$SUCESS Boot partition mounted successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to mount boot partition."
+    echo -e "$ERROR Failed to mount boot partition."
 fi
 swapon "$swap_partition"
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Swap partition mounted successfully."
+    echo -e "$SUCESS Swap partition mounted successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to mount swap partition."
+    echo -e "$ERROR Failed to mount swap partition."
 fi
 
 
 pacstrap -K /mnt base linux linux-firmware --noconfirm
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Base system installed successfully."
+    echo -e "$SUCESS Base system installed successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to install base system."
+    echo -e "$ERROR Failed to install base system."
 fi
 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -242,23 +261,23 @@ echo "127.0.0.1   localhost" >> /etc/hosts
 echo "::1         localhost" >> /etc/hosts
 echo "127.0.1.1   $hostname.localdomain $hostname" >> /etc/hosts
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m Hostname set successfully."
+    echo -e "$SUCESS Hostname set successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to set hostname."
+    echo -e "$ERROR Failed to set hostname."
 fi
 
 echo "Installing NetworkManager"
 pacman -S networkmanager --noconfirm
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m NetworkManager installed successfully."
+    echo -e "$SUCESS NetworkManager installed successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to install NetworkManager."
+    echo -e "$ERROR Failed to install NetworkManager."
 fi
 systemctl enable NetworkManager > /dev/null
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m NetworkManager enabled successfully."
+    echo -e "$SUCESS NetworkManager enabled successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to enable NetworkManager."
+    echo -e "$ERROR Failed to enable NetworkManager."
 fi
 
 printf "Enter your root password: "
@@ -270,9 +289,9 @@ printf "Enter your username: "
 read username
 useradd -m -G wheel -s /bin/bash "$username"
 if [ $? -eq 0 ]; then
-    echo -e "\e[1;32m[SUCCESS]\e[0m User '$username' created successfully."
+    echo -e "$SUCESS User '$username' created successfully."
 else
-    echo -e "\e[1;31m[ERROR]\e[0m Failed to create user '$username'."
+    echo -e "$ERROR Failed to create user '$username'."
 fi
 printf "Enter your password: "
 read -s user_password
