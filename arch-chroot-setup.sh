@@ -49,9 +49,7 @@ fi
 
 # Setting up the root password
 echo "Setting up the root password"
-printf "Enter the root password: "
-read -s root_password
-passwd root <<< "$root_password" >> /dev/null
+passwd 
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS Root password set successfully."
 else
@@ -68,9 +66,8 @@ if [ $? -eq 0 ]; then
 else
     echo -e "$ERROR Failed to create user '$username'."
 fi
-printf "Enter the password for user '$username': "
-read -s user_password
-passwd "$username" <<< "$user_password" >> /dev/null
+echo "Setting up the user password"
+passwd "$username" 
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS Password set for user '$username' successfully."
 else
@@ -104,7 +101,7 @@ else
     echo -e "$ERROR Failed to install Xorg."
 fi
 
-sudo pacman -S sddm
+sudo pacman -S sddm --noconfirm
 sudo systemctl enable sddm
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS SDDM installed successfully."
@@ -112,14 +109,14 @@ else
     echo -e "$ERROR Failed to install SDDM."
 fi
 #Installing KDE Plasma
-sudo pacman -S plasma alacritty dolphin ark kwrite kcalc spectacle krunner partitionmanager packagekit-qt5
+sudo pacman -S plasma alacritty dolphin ark kwrite kcalc spectacle krunner partitionmanager packagekit-qt5 --noconfirm
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS KDE Plasma installed successfully."
 else
     echo -e "$ERROR Failed to install KDE Plasma."
 fi
 # Installing Audio and Bluetooth
-sudo pacman -S alsa-utils bluez bluez-utils
+sudo pacman -S alsa-utils bluez bluez-utils -noconfirm
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS Audio and Bluetooth installed successfully."
 else
@@ -127,7 +124,7 @@ else
 fi
 sudo systemctl enable bluetooth.service
 # Installing Optional Programms
-sudo pacman -S firefox vlc libreoffice openssh wget git fastfetch docker docker-compose 
+sudo pacman -S firefox vlc libreoffice openssh wget git fastfetch docker docker-compose --noconfirm
 if [ $? -eq 0 ]; then
     echo -e "$SUCESS Optional Programms installed successfully."
 else
@@ -148,13 +145,6 @@ if [ $? -eq 0 ]; then
 else
     echo -e "$ERROR Failed to enable Docker."
 fi
-# Installing YAY 
-git clone https://aur.archlinux.org/yay.git
-cd yay || exit 
-makepkg -si
-cd .
-rm -rf yay 
-
 # Exiting the Envirmoment 
 echo "$SUCESS Exiting the chroot environment."
 exit
