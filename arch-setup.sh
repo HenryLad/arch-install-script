@@ -11,10 +11,21 @@ echo "#                                                          #"
 echo "############################################################"
 echo ""
 
+# Function to display a message with a specific color
 SUCCESS="\e[1;32m[SUCCESS]\e[0m"
 ERROR="\e[1;31m[ERROR]\e[0m"
 WARNING="\e[1;33m[WARNING]\e[0m"
 
+display_message() {
+    # $1: Exit Code of last prozess
+    # $2: Message for Sucess
+    # $3: Message for Error
+    if [ $1 -eq 0 ] || [ $1 == "y" ] || [ $1 == "Y" ]; then
+        echo -e "$SUCESS $2"
+    else
+        echo -e "$ERROR $3"
+    fi
+}
 echo "Which keylayout do you want? (Type 'A' to print all options):"
 read keylayout
 
@@ -39,24 +50,19 @@ else
 fi
 if [ "$(pwd)" != "/root" ]; then
     cd || exit
-    echo "$SUCESS Changed directory to /root"
+    display_message $? "Changed directory to /root" "Failed to change directory to /root"
 fi
 printf "Do you want to update the time Y/N : "
 read time
 if [ -z "$time" ]; then
     echo "$WARNING No input provided. Defaulting to 'N'."
     time="n"
-
 else  
 time=$(echo "$time" | tr '[:upper:]' '[:lower:]')
 fi 
 if [ $time = "y" ]; then
     timedatectl set-ntp true
-    if [ $? -eq 0 ]; then
-        echo -e "$SUCESS Time updated successfully."
-    else
-        echo "$ERROR Failed to update time."
-    fi
+    display_message $? "Time updated successfully." "Failed to update time."
 fi
 
 echo "Starting partionioning of the disk"
@@ -124,11 +130,7 @@ if [ "$remove" = "y" ]; then
     echo "Removing all partitions on $disk"
     umount -R "/dev/$disk"* 2>/dev/null
     wipefs -a "/dev/$disk"
-    if [ $? -eq 0 ]; then
-        echo -e "$SUCESS All partitions removed successfully."
-    else
-        echo -e "$ERROR Failed to remove all partitions."
-    fi
+    display_message $? "All partitions removed successfully." "Failed to remove all partitions."
 fi
 {
     echo "g"       # Create a new DOS partition table
@@ -151,11 +153,7 @@ fi
     echo "19"      # Set type to Linux swap
     echo "w"       # Write the changes and exit
 } | fdisk "/dev/$disk" > /dev/null
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Partitions created successfully."
-else
-    echo -e "$ERROR Failed to create partitions."
-fi
+display_message $? "Partitions created successfully." "Failed to create partitions."
 
 echo "Formatting partitions"
 
@@ -192,56 +190,37 @@ fi
 
 echo "Formatting boot partition"
 mkfs.fat -F 32 "$boot_partition"
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Boot partition formatted successfully."
-else
-    echo -e "$ERROR Failed to format boot partition."
-fi
+display_message $? "Boot partition formatted successfully." "Failed to format boot partition."
 mkfs.ext4 "$root_partition"
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Root partition formatted successfully."
-else
-    echo -e "$ERROR Failed to format root partition."
-fi
+display_message $? "Root partition formatted successfully." "Failed to format root partition."
 mkswap "$swap_partition"
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Swap partition formatted successfully."
-else
-    echo -e "$ERROR Failed to format swap partition."
-fi
-
+display_message $? "Swap partition formatted successfully." "Failed to format swap partition."
 
 echo "Mounting partitions to /mnt"
 
 mount "$root_partition" /mnt
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Root partition mounted successfully."
-else
-    echo -e "$ERROR Failed to mount root partition."
-fi
+display_message $? "Root partition mounted successfully." "Failed to mount root partition."
 mount --mkdir "$boot_partition" /mnt/boot
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Boot partition mounted successfully."
-else
-    echo -e "$ERROR Failed to mount boot partition."
-fi
+display_message $? "Boot partition mounted successfully." "Failed to mount boot partition."
 swapon "$swap_partition"
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Swap partition mounted successfully."
-else
-    echo -e "$ERROR Failed to mount swap partition."
-fi
+display_message $? "Swap partition mounted successfully." "Failed to mount swap partition."
 
 
 
 echo "Installing the base system"
 pacstrap /mnt base base-devel linux linux-firmware linux-headers nano intel-ucode reflector mtools dosfstools --noconfirm >> /dev/null
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS Base system installed successfully."
-else
-    echo -e "$ERROR Failed to install base system."
-fi
+display_message $? "Base system installed successfully." "Failed to install base system."
 genfstab -U /mnt >> /mnt/etc/fstab
+display_message $? "fstab generated successfully." "Failed to generate fstab."
+
+
+
+printf "Do you want to setup the system in chroot? Y/N: "
+read chroot
+if [ chroot = "n" ]; then
+    echo "Chroot setup skipped. Exiting script."
+    exit
+fi
 
 # Setup in the arch chroot environment
 echo "Setting up the system in chroot"
@@ -249,21 +228,14 @@ cd arch-install-script || exit
 cp arch-chroot-setup.sh /mnt
 chmod +x /mnt/arch-chroot-setup.sh
 arch-chroot /mnt ./arch-chroot-setup.sh
-if [ $? -eq 0 ]; then
-    echo -e "$SUCESS System setup in chroot completed successfully."
-else
-    echo -e "$ERROR Failed to setup system in chroot."
-fi
+display_message $? "System setup in chroot successfully." "Failed to setup system in chroot."
+
 printf "Do you want to remove the installation script? Y/N: "
 read remove_script
 remove_script=$(echo "$remove_script" | tr '[:upper:]' '[:lower:]')
 if [ "$remove_script" = "y" ]; then
     rm /mnt/arch-chroot-setup.sh
-    if [ $? -eq 0 ]; then
-        echo -e "$SUCESS Installation script removed successfully."
-    else
-        echo -e "$ERROR Failed to remove installation script."
-    fi
+    display_message $? "Installation script removed successfully." "Failed to remove installation script."
 fi
 
 
