@@ -154,3 +154,7 @@ cd yay || exit
 makepkg -si
 cd .
 rm -rf yay 
+
+# Exiting the Envirmoment 
+echo "$SUCESS Exiting the chroot environment."
+exit
