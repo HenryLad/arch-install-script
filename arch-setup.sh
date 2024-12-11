@@ -246,7 +246,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 # Setup in the arch chroot environment
 echo "Setting up the system in chroot"
 
-cp arch-chroot-setup.sh /mnt/
+cp arch-chroot-setup.sh /mnt
 chmod +x /mnt/arch-chroot-setup.sh
 arch-chroot /mnt ./arch-chroot-setup.sh
 if [ $? -eq 0 ]; then
