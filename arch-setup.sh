@@ -26,15 +26,16 @@ display_message() {
         echo -e "$ERROR $3"
     fi
 }
+# Loading the right keylayout
 echo "Which keylayout do you want? (Type 'A' to print all options):"
 read keylayout
-
+# Display all keylayouts
 if [[ "$keylayout" == "A" || "$keylayout" == "a" ]]; then
     localectl list-keymaps
     echo "Which keylayout do you want: "
     read keylayout
 fi
-
+# Check if the keylayout is empty
 if [ -z "$keylayout" ]; then
     echo "$WARNING Keylayout not provided! Continuing with the currently selected keylayout."
     current_keylayout=$(localectl status | awk -F: '/VC Keymap/{gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
@@ -48,6 +49,7 @@ else
         echo "Current keylayout is: $current_keylayout"
     fi
 fi
+# Chaning the dir to /root if not already there. It is easier to work from there
 if [ "$(pwd)" != "/root" ]; then
     cd || exit
     display_message $? "Changed directory to /root" "Failed to change directory to /root"
