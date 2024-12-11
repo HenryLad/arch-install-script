@@ -245,7 +245,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Setup in the arch chroot environment
 echo "Setting up the system in chroot"
-
+cd arch-install-script || exit
 cp arch-chroot-setup.sh /mnt
 chmod +x /mnt/arch-chroot-setup.sh
 arch-chroot /mnt ./arch-chroot-setup.sh
@@ -265,7 +265,7 @@ if [ "$remove_script" = "y" ]; then
         echo -e "$ERROR Failed to remove installation script."
     fi
 fi
-rm /mnt/arch-chroot-setup.sh
+
 
 echo "Installation complete. Should the system get rebooted? Y/N"
 read reboot
