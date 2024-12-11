@@ -122,6 +122,7 @@ read remove
 remove=$(echo "$remove" | tr '[:upper:]' '[:lower:')
 if [ "$remove" = "y" ]; then
     echo "Removing all partitions on $disk"
+    umount -R "/dev/$disk"* 2>/dev/null
     wipefs -a "/dev/$disk"
     if [ $? -eq 0 ]; then
         echo -e "$SUCESS All partitions removed successfully."
@@ -245,7 +246,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 # Setup in the arch chroot environment
 echo "Setting up the system in chroot"
 
-cp arch-chroot-setup /mnt/
+cp arch-chroot-setup.sh /mnt/
 chmod +x /mnt/arch-chroot-setup.sh
 arch-chroot /mnt ./arch-chroot-setup.sh
 if [ $? -eq 0 ]; then
