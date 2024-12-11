@@ -22,7 +22,7 @@ Before running the script, ensure you have the following:
 
   git clone https://github.com/HenryLad/arch-install-script.git && ./arch-install-script/install.sh
 
-or download it with curl 
+5. or download it with curl 
 
   curl -LO https://raw.githubusercontent.com/HenryLad/arch-install-script/refs/heads/main/arch-setup.sh && chmod +x arch-setup.sh && ./arch-setup.sh
 
