@@ -21,7 +21,7 @@ display_message() {
     # $2: Message for Sucess
     # $3: Message for Error
     if [ $1 -eq 0 ] || [ $1 == "y" ] || [ $1 == "Y" ]; then
-        echo -e "$SUCESS $2"
+        echo -e "$SUCCESS $2"
     else
         echo -e "$ERROR $3"
     fi
@@ -191,20 +191,20 @@ if [ "$line_count" != 1 ]; then
 fi
 
 echo "Formatting boot partition"
-mkfs.fat -F 32 "$boot_partition"
+mkfs.fat -F 32 "$boot_partition" > /dev/null
 display_message $? "Boot partition formatted successfully." "Failed to format boot partition."
-mkfs.ext4 "$root_partition"
+mkfs.ext4 "$root_partition" > /dev/null
 display_message $? "Root partition formatted successfully." "Failed to format root partition."
-mkswap "$swap_partition"
+mkswap "$swap_partition" > /dev/null
 display_message $? "Swap partition formatted successfully." "Failed to format swap partition."
 
 echo "Mounting partitions to /mnt"
 
-mount "$root_partition" /mnt
+mount "$root_partition" /mnt > /dev/null
 display_message $? "Root partition mounted successfully." "Failed to mount root partition."
-mount --mkdir "$boot_partition" /mnt/boot
+mount --mkdir "$boot_partition" /mnt/boot > /dev/null
 display_message $? "Boot partition mounted successfully." "Failed to mount boot partition."
-swapon "$swap_partition"
+swapon "$swap_partition" > /dev/null
 display_message $? "Swap partition mounted successfully." "Failed to mount swap partition."
 
 
@@ -219,7 +219,7 @@ display_message $? "fstab generated successfully." "Failed to generate fstab."
 
 printf "Do you want to setup the system in chroot? Y/N: "
 read chroot
-if [ chroot = "n" ]; then
+if [ $chroot = "n" ]; then
     echo "Chroot setup skipped. Exiting script."
     exit
 fi
