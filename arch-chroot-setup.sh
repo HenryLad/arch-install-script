@@ -18,7 +18,7 @@ display_message() {
 echo "Setting up the keylayout"
 printf "Enter your keylayout (e.g. de-latin1): "
 read -r keylayout
-loadkeys $keylayout
+loadkeys "$keylayout"
 display_message $? "Keylayout set successfully." "Failed to set keylayout."
 
 # Setting up time 
