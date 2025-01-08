@@ -18,29 +18,10 @@ display_message() {
 echo "Setting up the keylayout"
 printf "Enter your keylayout (e.g. de-latin1): "
 read -r keylayout
-loadkeys "$keylayout"
+loadkeys $keylayout
 display_message $? "Keylayout set successfully." "Failed to set keylayout."
-# Starting System upgrade and update
-echo -e "$WARNING Starting full System upgrade and update."
-pacman -Sy --noconfirm >> /dev/null
-display_message $? "System updated successfully." "Failed to update system."
-pacamn -Syu --noconfirm >> /dev/null
-display_message $? "System upgraded successfully." "Failed to update system."
 
 # Setting up time 
-echo "Setting up the time"
-timedatectl set-ntp true
-display_message $? "Time updated successfully." "Failed to update time."
-# Updating the mirrorlist
-echo "Updating the mirrorlist"
-pacman -S reflector --noconfirm >>/dev/null
-display_message $? "Reflector installed successfully." "Failed to install reflector."
-reflector --latest 200 --sort rate --save /etc/pacman.d/mirrorlist
-display_message $? "Mirrorlist updated successfully." "Failed to update mirrorlist."
-# Updating Keyring
-echo "Updating Pacman Keyring"
-pacman -S archlinux-keyring --noconfirm >>/dev/null
-display_message $? "Pacman Keyring updated successfully." "Failed to update Pacman Keyring."
 # Setting up Language
 echo "Setting up the language"
 printf "Enter your language (e.g. en_US.UTF-8, de_DE.UTF-8): "
@@ -88,6 +69,25 @@ else
     echo -e "$ERROR Failed to set password for user '$username'"
 fi
 
+echo "Setting up the time"
+timedatectl set-ntp true
+display_message $? "Time updated successfully." "Failed to update time."
+# Updating the mirrorlist
+echo "Updating the mirrorlist"
+pacman -S reflector --noconfirm >>/dev/null
+display_message $? "Reflector installed successfully." "Failed to install reflector."
+reflector --latest 200 --sort rate --save /etc/pacman.d/mirrorlist
+display_message $? "Mirrorlist updated successfully." "Failed to update mirrorlist."
+# Starting System upgrade and update
+echo -e "$WARNING Starting full System upgrade and update."
+pacman -Sy --noconfirm >> /dev/null
+display_message $? "System updated successfully." "Failed to update system."
+pacamn -Syu --noconfirm >> /dev/null
+display_message $? "System upgraded successfully." "Failed to update system."
+# Updating Keyring
+echo "Updating Pacman Keyring"
+pacman -S archlinux-keyring --noconfirm >>/dev/null
+display_message $? "Pacman Keyring updated successfully." "Failed to update Pacman Keyring."
 # Setting up GRUB Bootloader for EFI Systems
 pacman -S grub efibootmgr --noconfirm >>/dev/null
 display_message $? "GRUB Bootloader package installed successfully." "Failed to install GRUB Bootloader package."
