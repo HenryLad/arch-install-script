@@ -241,5 +241,6 @@ if [ "$remove_script" = "y" ]; then
 fi
 
 
-echo "Installation complete. Should the system get rebooting now"
+echo "Installation complete. Should the system reboot now ?"
+echo -s 
 reboot

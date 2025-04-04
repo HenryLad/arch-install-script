@@ -1,0 +1,38 @@
+FROM archlinux:latest
+
+# Install minimal dependencies for running the script
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm base sudo
+
+RUN mkdir -p /boot
+
+# Copy the setup script to the container
+COPY arch-chroot-setup.sh /root/arch-chroot-setup.sh
+RUN chmod +x /root/arch-chroot-setup.sh
+
+# Create a wrapper script to capture the exit code and logs
+RUN echo '#!/bin/sh \n\
+LOG_FILE="/root/setup_log.txt" \n\
+echo "Starting script execution at: $(date)" > $LOG_FILE \n\
+/root/arch-chroot-setup.sh >> $LOG_FILE 2>&1 \n\
+EXIT_CODE=$? \n\
+echo "Script completed with exit code: $EXIT_CODE" >> $LOG_FILE \n\
+if [ $EXIT_CODE -ne 0 ]; then \n\
+    echo "ERROR: Script failed with exit code: $EXIT_CODE" \n\
+    echo "===== ERROR LOG =====" \n\
+    cat $LOG_FILE | grep -i "error\|failed\|warning" \n\
+    echo "===================" \n\
+    exit $EXIT_CODE \n\
+else \n\
+    echo "SUCCESS: Script completed successfully" \n\
+fi \n\
+exit $EXIT_CODE' > /root/run_script.sh && \
+    chmod +x /root/run_script.sh
+
+# Define environment variables to avoid interactive prompts
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Command to run when container starts
+CMD ["/bin/sh", "-c", "/root/run_script.sh"]

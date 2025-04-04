@@ -14,6 +14,7 @@ display_message() {
         echo -e "$ERROR $3"
     fi
 }
+pacamn -Syu --noconfirm >> /dev/null
 # Setting up the keylayout
 echo "Setting up the keylayout"
 printf "Enter your keylayout (e.g. de-latin1): "
